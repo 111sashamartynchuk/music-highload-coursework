@@ -1,13 +1,24 @@
-class MongoRepository:
-    def save_document(self, document: dict):
+class PostgresAdapter:
+    def save_relations(self, artist_data: dict, album_data: dict, track_data: dict):
         pass
 
-class ElasticRepository:
-    def index_text(self, text: str):
+class MongoAdapter:
+    def save_track_card(self, card_document: dict):
         pass
 
-class RedisCache:
-    def get_cache(self, key: str):
+    def get_track_card(self, track_id: str) -> dict:
         pass
-    def set_cache(self, key: str, value: dict):
+
+class ElasticAdapter:
+    def index_lyrics(self, track_id: str, title: str, artist: str, lyrics: str):
+        pass
+
+    def search_by_text(self, text: str) -> list[str]:
+        pass
+
+class RedisCacheAdapter:
+    def get_cached_search(self, query_key: str) -> list[dict] | None:
+        pass
+
+    def set_cached_search(self, query_key: str, results: list[dict], ttl: int = 3600):
         pass

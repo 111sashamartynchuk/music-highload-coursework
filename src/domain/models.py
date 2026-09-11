@@ -8,9 +8,17 @@ class Artist:
     genre: str
 
 @dataclass
+class Album:
+    id: UUID
+    artist_id: UUID
+    title: str
+    release_year: int
+
+@dataclass
 class Track:
     id: UUID
+    album_id: UUID
     title: str
     lyrics: str
-    release_year: int
-    artist_id: UUID
+    duration_sec: int
+    source_link: str
