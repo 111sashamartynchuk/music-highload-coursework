@@ -1,24 +1,43 @@
-class PostgresAdapter:
-    def save_relations(self, artist_data: dict, album_data: dict, track_data: dict):
+from typing import List, Optional
+from uuid import UUID
+from src.application.handlers import (
+    ITrackMetadataRepository,
+    ITrackLyricsRepository,
+)
+from src.domain.models import TrackMetadataDTO, TrackLyricsDTO
+
+
+class TrackMetadataRepository(ITrackMetadataRepository):
+
+    ## Адаптер для збереження структурованих метаданих у PostgreSQL / MongoDB.
+    ### Реалізує CRUD-операції.
+
+    def create(self, dto: TrackMetadataDTO) -> UUID:
         pass
 
-class MongoAdapter:
-    def save_track_card(self, card_document: dict):
+    def get_by_id(self, track_id: UUID) -> Optional[TrackMetadataDTO]:
         pass
 
-    def get_track_card(self, track_id: str) -> dict:
+    def update(self, track_id: UUID, dto: TrackMetadataDTO) -> bool:
         pass
 
-class ElasticAdapter:
-    def index_lyrics(self, track_id: str, title: str, artist: str, lyrics: str):
+    def delete(self, track_id: UUID) -> bool:
         pass
 
-    def search_by_text(self, text: str) -> list[str]:
+
+class TrackLyricsRepository(ITrackLyricsRepository):
+
+    ## Адаптер для роботи з текстами пісень у Elasticsearch
+    ## pеалізує збереження, пошук та видалення індексу
+
+    def index(self, dto: TrackLyricsDTO) -> None:
         pass
 
-class RedisCacheAdapter:
-    def get_cached_search(self, query_key: str) -> list[dict] | None:
+    def get_by_track_id(self, track_id: UUID) -> Optional[TrackLyricsDTO]:
         pass
 
-    def set_cached_search(self, query_key: str, results: list[dict], ttl: int = 3600):
+    def search_by_text(self, text: str) -> List[UUID]:
+        pass
+
+    def delete(self, track_id: UUID) -> bool:
         pass

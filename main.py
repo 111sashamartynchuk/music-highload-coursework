@@ -1,71 +1,52 @@
-import uuid
-from src.domain.models import Artist, Album, Track
-from src.infrastructure.repositories import (
-    PostgresAdapter,
-    MongoAdapter,
-    ElasticAdapter,
-    RedisCacheAdapter,
-)
+from src.api.controllers import TrackController
 from src.application.handlers import (
-    TrackCommandHandler,
-    TrackQueryHandler,
-    IngestTrackCommand,
-    SearchTracksQuery,
+    TrackMetadataService,
+    TrackLyricsService,
+    MusicCatalogFacade,
 )
-from src.api.controllers import SearchController, IngestController
+from src.domain.models import CreateTrackDTO
+from src.infrastructure.repositories import (
+    TrackMetadataRepository,
+    TrackLyricsRepository,
+)
 
 
-def test_system_wiring():
-    print("тестування архітектури")
+def verify_architecture_flow():
+    print("Перевірка ланцюжка архітектури")
 
-    sample_artist = Artist(
-        id=uuid.uuid4(),
-        name="Queen",
-        genre="Rock"
+    metadata_repo = TrackMetadataRepository()
+    lyrics_repo = TrackLyricsRepository()
+    print("1. Repositories створено: TrackMetadataRepository & TrackLyricsRepository")
+
+    metadata_service = TrackMetadataService(metadata_repo=metadata_repo)
+    lyrics_service = TrackLyricsService(lyrics_repo=lyrics_repo)
+    print("2. Services підключено: TrackMetadataService & TrackLyricsService")
+
+    catalog_facade = MusicCatalogFacade(
+        metadata_service=metadata_service,
+        lyrics_service=lyrics_service
     )
-    sample_album = Album(
-        id=uuid.uuid4(),
-        artist_id=sample_artist.id,
-        title="A Night at the Opera",
-        release_year=1975
-    )
-    sample_track = Track(
-        id=uuid.uuid4(),
-        album_id=sample_album.id,
+    print("3. Facade зібрано: MusicCatalogFacade")
+
+    controller = TrackController(catalog_facade=catalog_facade)
+    print("4. Controller готовий: TrackController")
+
+    test_track_dto = CreateTrackDTO(
         title="Bohemian Rhapsody",
-        lyrics="Is this the real life? Is this just fantasy?",
+        artist_name="Queen",
+        album_title="A Night at the Opera",
+        lyrics="Is this the real life?",
+        genre="Rock",
+        release_year=1975,
         duration_sec=354,
-        source_link="https://open.spotify.com/track/sample"
+        source_link="https://open.spotify.com/..."
     )
-    print(f"1. Domain сутності створено  {sample_track.title} ({sample_artist.name})")
+    controller.create_track(test_track_dto)
+    controller.search_tracks(query="Bohemian")
 
-    pg_adapter = PostgresAdapter()
-    mongo_adapter = MongoAdapter()
-    elastic_adapter = ElasticAdapter()
-    redis_adapter = RedisCacheAdapter()
-    print("2. Адаптери інфраструктури ")
-
-    command_handler = TrackCommandHandler(
-        pg_repo=pg_adapter,
-        mongo_repo=mongo_adapter,
-        elastic_repo=elastic_adapter
-    )
-    query_handler = TrackQueryHandler(
-        cache_service=redis_adapter,
-        elastic_repo=elastic_adapter,
-        mongo_repo=mongo_adapter
-    )
-    print("3. Application-обробники CQRS ")
-
-    ingest_api = IngestController(command_handler=command_handler)
-    search_api = SearchController(query_handler=query_handler)
-    print("4. Контролери API ")
-
-    ingest_api.ingest_batch([{"raw": "data"}])
-    search_api.search(q="Bohemian", year=1975)
-
-    print("коректно")
+    print("\nЛанцюжок успішно перевірено:")
+    print("TrackController -> MusicCatalogFacade -> [TrackMetadataService + TrackLyricsService] -> [TrackMetadataRepository + TrackLyricsRepository]")
 
 
 if __name__ == "__main__":
-    test_system_wiring()
+    verify_architecture_flow()

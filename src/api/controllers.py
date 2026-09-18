@@ -1,15 +1,17 @@
-class SearchController:
-    """Вхідний адаптер (Driving Adapter) для HTTP запитів користувачів"""
-    def __init__(self, query_handler):
-        self.query_handler = query_handler
+from src.application.handlers import MusicCatalogFacade
 
-    def search(self, q: str, year: int = None):
+
+class TrackController:
+    ### аналог MovieController
+    # Приймає HTTP-запити та передає виклики у MusicCatalogFacade.
+    def __init__(self, catalog_facade: MusicCatalogFacade):
+        self.catalog_facade = catalog_facade
+
+    def create_track(self, payload: dict):
         pass
 
-class IngestController:
-    """Вхідний адаптер для прийому батчів від генератора даних"""
-    def __init__(self, command_handler):
-        self.command_handler = command_handler
+    def get_track(self, track_id: str):
+        pass
 
-    def ingest_batch(self, batch_data: list[dict]):
+    def search_tracks(self, query: str):
         pass
